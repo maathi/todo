@@ -10,7 +10,7 @@ function Add({ todos, setTodos, classes }) {
         "Content-Type": "application/json",
       },
       method: "POST",
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ index: todos.length, text }),
     })
       .then((response) => response.json())
       .then((todo) => setTodos([...todos, todo]))

@@ -1,6 +1,13 @@
 import { Draggable } from "react-beautiful-dnd"
 
-import { Typography, Button, Icon, Box, Checkbox } from "@material-ui/core"
+import {
+  Typography,
+  Button,
+  Icon,
+  Box,
+  Checkbox,
+  TextField,
+} from "@material-ui/core"
 
 function Item({ todos, setTodos, id, text, index, completed, classes }) {
   function toggleTodoCompleted(id) {
@@ -29,6 +36,10 @@ function Item({ todos, setTodos, id, text, index, completed, classes }) {
       method: "DELETE",
     }).then(() => setTodos(todos.filter((todo) => todo.id !== id)))
   }
+
+  function handleDateChange(v) {
+    console.log(v)
+  }
   return (
     <Draggable draggableId={id} index={index}>
       {(provided) => (
@@ -53,10 +64,12 @@ function Item({ todos, setTodos, id, text, index, completed, classes }) {
               {text}
             </Typography>
           </Box>
+          <TextField type="date" />
           <Button
             className={classes.deleteTodo}
             startIcon={<Icon>delete</Icon>}
             onClick={() => deleteTodo(id)}
+            onChange={(event) => handleDateChange(event.target.value)}
           >
             Delete
           </Button>
