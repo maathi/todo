@@ -26,7 +26,6 @@ app.use(express.urlencoded({ extended: false }))
 app.get("/", async (req, res) => {
   const pageSize = 20
   const selectedPage = Number(req.query.pageNumber) || 1
-  console.log(selectedPage)
   const todos = database.client.db("todos").collection("todos")
   const response = await todos
     .find({})
@@ -78,26 +77,37 @@ app.delete("/:id", async (req, res) => {
   res.end()
 })
 
-app.post("/switch", async (req, res) => {
+app.post("/reorder", async (req, res) => {
   const { srcIndex, dstIndex } = req.body
-  console.log(typeof srcIndex, dstIndex)
 
-  let { _id } = await database.client
-    .db("todos")
-    .collection("todos")
-    .findOne({ index: srcIndex })
+  const todos = database.client.db("todos").collection("todos")
+  let { id } = await todos.findOne({ index: srcIndex })
 
-  await database.client
-    .db("todos")
-    .collection("todos")
-    .findOneAndUpdate({ index: dstIndex }, { $set: { index: srcIndex } })
+  if (srcIndex < dstIndex) {
+    await todos.updateMany(
+      { index: { $gt: srcIndex, $lte: dstIndex } },
+      { $inc: { index: -1 } }
+    )
+  } else {
+    await todos.updateMany(
+      { index: { $lt: srcIndex, $gte: dstIndex } },
+      { $inc: { index: 1 } }
+    )
+  }
+  await todos.updateOne({ id }, { $set: { index: dstIndex } })
 
-  await database.client
-    .db("todos")
-    .collection("todos")
-    .findOneAndUpdate({ _id }, { $set: { index: dstIndex } })
   res.status(200)
   res.end()
 })
 
+app.post("/date", async (req, res) => {
+  const { id, date } = req.body
+
+  await database.client
+    .db("todos")
+    .collection("todos")
+    .updateOne({ id }, { $set: { date } })
+  res.status(200)
+  res.end()
+})
 module.exports = app

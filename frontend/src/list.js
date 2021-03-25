@@ -9,15 +9,15 @@ function List({ todos, setTodos, classes }) {
   let [hasMore, setHasMore] = useState(true)
 
   function handleOndragEnd(result) {
-    fetch("http://localhost:3001/switch", {
+    fetch("http://localhost:3001/reorder", {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       method: "POST",
       body: JSON.stringify({
-        srcIndex: result.source.index,
-        dstIndex: result.destination.index,
+        srcIndex: todos[result.source.index]["index"],
+        dstIndex: todos[result.destination.index]["index"],
       }),
     })
 
@@ -32,9 +32,7 @@ function List({ todos, setTodos, classes }) {
     fetch("http://localhost:3001/?pageNumber=" + pageNumber)
       .then((response) => response.json())
       .then((moreTodos) => {
-        console.log("lenth of more todos", moreTodos.length)
         if (moreTodos.length < pageSize) {
-          console.log("yes")
           setHasMore(false)
         }
         setTodos(todos.concat(moreTodos))
@@ -56,7 +54,7 @@ function List({ todos, setTodos, classes }) {
                 hasMore={hasMore}
                 loader={<h4>Loading...</h4>}
               >
-                {todos.map(({ id, text, completed }, index) => (
+                {todos.map(({ id, text, completed, date }, index) => (
                   <Item
                     key={id}
                     todos={todos}
@@ -64,6 +62,7 @@ function List({ todos, setTodos, classes }) {
                     id={id}
                     text={text}
                     completed={completed}
+                    date={date}
                     index={index}
                     classes={classes}
                   ></Item>

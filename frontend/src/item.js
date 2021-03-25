@@ -9,7 +9,7 @@ import {
   TextField,
 } from "@material-ui/core"
 
-function Item({ todos, setTodos, id, text, index, completed, classes }) {
+function Item({ todos, setTodos, id, text, index, completed, date, classes }) {
   function toggleTodoCompleted(id) {
     fetch(`http://localhost:3001/${id}`, {
       headers: {
@@ -37,9 +37,30 @@ function Item({ todos, setTodos, id, text, index, completed, classes }) {
     }).then(() => setTodos(todos.filter((todo) => todo.id !== id)))
   }
 
-  function handleDateChange(v) {
-    console.log(v)
+  function handleDateChange(e) {
+    console.log(new Date().toISOString().split("T")[0])
+    console.log(e.target.value)
+    fetch(`http://localhost:3001/date`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        id,
+        date: e.target.value,
+      }),
+    }).then(() => {
+      const newTodos = [...todos]
+      const modifiedTodoIndex = newTodos.findIndex((todo) => todo.id === id)
+      newTodos[modifiedTodoIndex] = {
+        ...newTodos[modifiedTodoIndex],
+        date: e.target.value,
+      }
+      setTodos(newTodos)
+    })
   }
+
   return (
     <Draggable draggableId={id} index={index}>
       {(provided) => (
@@ -64,12 +85,16 @@ function Item({ todos, setTodos, id, text, index, completed, classes }) {
               {text}
             </Typography>
           </Box>
-          <TextField type="date" />
+          <TextField
+            id="date"
+            type="date"
+            defaultValue={date}
+            onChange={handleDateChange}
+          />
           <Button
             className={classes.deleteTodo}
             startIcon={<Icon>delete</Icon>}
             onClick={() => deleteTodo(id)}
-            onChange={(event) => handleDateChange(event.target.value)}
           >
             Delete
           </Button>
