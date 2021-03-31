@@ -33,7 +33,14 @@ function Item({ todos, setTodos, id, text, index, completed, date, classes }) {
 
   function deleteTodo(id) {
     fetch(`http://localhost:3001/${id}`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       method: "DELETE",
+      body: JSON.stringify({
+        index,
+      }),
     }).then(() => setTodos(todos.filter((todo) => todo.id !== id)))
   }
 

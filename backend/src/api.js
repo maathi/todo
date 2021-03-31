@@ -38,7 +38,7 @@ app.get("/", async (req, res) => {
 })
 
 app.post("/", async (req, res) => {
-  const { index, text } = req.body
+  const { text } = req.body
 
   if (typeof text !== "string") {
     res.status(400)
@@ -46,8 +46,13 @@ app.post("/", async (req, res) => {
     return
   }
 
-  const todo = { id: generateId(), index, text, completed: false }
-  await database.client.db("todos").collection("todos").insertOne(todo)
+  const todo = { id: generateId(), index: 0, text, completed: false }
+
+  const todos = database.client.db("todos").collection("todos")
+
+  await todos.updateMany({}, { $inc: { index: 1 } })
+
+  await todos.insertOne(todo)
   res.status(201)
   res.json(todo)
 })
@@ -72,7 +77,11 @@ app.put("/:id", async (req, res) => {
 
 app.delete("/:id", async (req, res) => {
   const { id } = req.params
-  await database.client.db("todos").collection("todos").deleteOne({ id })
+  const { index } = req.body
+  console.log("the index", index)
+  const todos = database.client.db("todos").collection("todos")
+  await todos.deleteOne({ id })
+  await todos.updateMany({ index: { $gt: index } }, { $inc: { index: -1 } })
   res.status(203)
   res.end()
 })

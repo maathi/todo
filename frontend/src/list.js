@@ -9,6 +9,9 @@ function List({ todos, setTodos, classes }) {
   let [hasMore, setHasMore] = useState(true)
 
   function handleOndragEnd(result) {
+    let srcIndex = result.source.index
+    let dstIndex = result.destination.index
+
     fetch("http://localhost:3001/reorder", {
       headers: {
         Accept: "application/json",
@@ -16,14 +19,14 @@ function List({ todos, setTodos, classes }) {
       },
       method: "POST",
       body: JSON.stringify({
-        srcIndex: todos[result.source.index]["index"],
-        dstIndex: todos[result.destination.index]["index"],
+        srcIndex,
+        dstIndex,
       }),
     })
-
     const items = Array.from(todos)
-    const [movedItem] = items.splice(result.source.index, 1)
-    items.splice(result.destination.index, 0, movedItem)
+    const [movedItem] = items.splice(srcIndex, 1)
+    items.splice(dstIndex, 0, movedItem)
+    items.map((x, i) => (x.index = i))
     setTodos(items)
   }
 
