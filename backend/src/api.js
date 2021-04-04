@@ -78,7 +78,6 @@ app.put("/:id", async (req, res) => {
 app.delete("/:id", async (req, res) => {
   const { id } = req.params
   const { index } = req.body
-  console.log("the index", index)
   const todos = database.client.db("todos").collection("todos")
   await todos.deleteOne({ id })
   await todos.updateMany({ index: { $gt: index } }, { $inc: { index: -1 } })
@@ -92,6 +91,7 @@ app.post("/reorder", async (req, res) => {
   const todos = database.client.db("todos").collection("todos")
   let { id } = await todos.findOne({ index: srcIndex })
 
+  //checks if we moved task from top to bottom or from bottom to top
   if (srcIndex < dstIndex) {
     await todos.updateMany(
       { index: { $gt: srcIndex, $lte: dstIndex } },

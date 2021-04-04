@@ -1,13 +1,21 @@
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
+import { DragDropContext, Droppable } from "react-beautiful-dnd"
 import InfiniteScroll from "react-infinite-scroll-component"
 import { Paper, Box } from "@material-ui/core"
-import Item from "./item"
+import { makeStyles } from "@material-ui/core/styles"
 import { useState } from "react"
 
-function List({ todos, setTodos, classes }) {
-  let pageSize = 20
+import Item from "./item"
+
+const useStyles = makeStyles({
+  todosContainer: { marginTop: 10, padding: 10 },
+})
+
+function List({ todos, setTodos }) {
+  const pageSize = 20
+  const classes = useStyles()
   let [hasMore, setHasMore] = useState(true)
 
+  //handles sorting tasks
   function handleOndragEnd(result) {
     let srcIndex = result.source.index
     let dstIndex = result.destination.index
@@ -23,13 +31,18 @@ function List({ todos, setTodos, classes }) {
         dstIndex,
       }),
     })
+
+    //sorting tasks on client
     const items = Array.from(todos)
     const [movedItem] = items.splice(srcIndex, 1)
     items.splice(dstIndex, 0, movedItem)
+
+    //reseting indexes
     items.map((x, i) => (x.index = i))
     setTodos(items)
   }
 
+  //fetch 20 more tasks
   function fetchMoreData() {
     let pageNumber = Math.floor(todos.length / pageSize) + 1
     fetch("http://localhost:3001/?pageNumber=" + pageNumber)
@@ -60,14 +73,15 @@ function List({ todos, setTodos, classes }) {
                 {todos.map(({ id, text, completed, date }, index) => (
                   <Item
                     key={id}
+                    item={{
+                      id,
+                      text,
+                      completed,
+                      date,
+                    }}
                     todos={todos}
                     setTodos={setTodos}
-                    id={id}
-                    text={text}
-                    completed={completed}
-                    date={date}
                     index={index}
-                    classes={classes}
                   ></Item>
                 ))}
               </InfiniteScroll>

@@ -1,7 +1,13 @@
 import { useState } from "react"
 import { Paper, Box, TextField, Button, Icon } from "@material-ui/core"
+import { makeStyles } from "@material-ui/core/styles"
+const useStyles = makeStyles({
+  addTodoContainer: { padding: 10 },
+  addTodoButton: { marginLeft: 5 },
+})
 
-function Add({ todos, setTodos, classes }) {
+function Add({ todos, setTodos }) {
+  const classes = useStyles()
   const [newTodoText, setNewTodoText] = useState("")
   function addTodo(text) {
     fetch("http://localhost:3001/", {
